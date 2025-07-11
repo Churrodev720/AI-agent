@@ -1,4 +1,5 @@
 import os.path
+from functions.config import MAX_CHARS
 
 def get_files_info(working_directory, directory=None):
     
@@ -55,11 +56,65 @@ def get_files_info(working_directory, directory=None):
     return borus
 
 
-
 def get_file_content(working_directory, file_path):
+    v = os.path.abspath(working_directory)
     l = os.listdir(path=f'{working_directory}')
+    mel = f"{v}/{file_path}" 
+    pow = os.path.isfile(mel)
     
-    if file_path not in l:
+    count = 0
+    for i in l:
+        if mel.startswith(i) == True:
+            count += 1
+        
+    if count >= 1:
         return f'Error: Cannot read "{file_path}" as it is outside the permitted working directory'
     
+    if pow == False:
+        return f'Error: File not found or is not a regular file: "{file_path}"'
     
+    
+    with open(mel, "r") as f:
+        test = f.read()
+        file_content_string = test[0:MAX_CHARS]
+            
+        if len(test) > MAX_CHARS:
+            file_content_string += f'[...File "{file_path}" truncated at 10000 characters]'
+                
+        return file_content_string
+    
+
+def write_file(working_directory, file_path, content):
+    v = os.path.abspath(working_directory)
+    l = os.listdir(path=f'{working_directory}')
+    mel = f"{v}/{file_path}" 
+    #pow = os.path.isfile(mel)
+    
+    count = 0
+    if file_path[0] == "/":
+            return f"Error: file path {file_path} has a '/' at the beginning"
+    for i in l:
+        if mel.startswith(i) == True:
+            count += 1
+        
+    if count >= 1:
+        fel = os.path.dirname(file_path)
+        tel = f"{v}/{fel}"
+        if os.path.exists(tel) == False:
+            os.makedirs(tel, exist_ok=True)
+            
+        
+        
+    
+    #if pow == True:
+    #    return f'Error: File already exists: "{file_path}"'
+   
+    
+    
+    with open(mel, 'w') as file:
+        file.write(f"{content}")
+    return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
+
+    
+def run_python_file(working_directory, file_path):
+     pass 
