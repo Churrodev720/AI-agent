@@ -1,5 +1,7 @@
 import os.path
+import sys
 from functions.config import MAX_CHARS
+import subprocess
 
 def get_files_info(working_directory, directory=None):
     
@@ -106,15 +108,49 @@ def write_file(working_directory, file_path, content):
         
         
     
-    #if pow == True:
-    #    return f'Error: File already exists: "{file_path}"'
-   
-    
-    
     with open(mel, 'w') as file:
         file.write(f"{content}")
     return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
 
     
-def run_python_file(working_directory, file_path):
-     pass 
+def run_python_file(working_directory, file_path, args=[]):
+     work_abs = os.path.abspath(working_directory)
+     l = os.listdir(path=f'{working_directory}')
+     mel = os.path.abspath(os.path.join(work_abs, file_path)) 
+     pow = os.path.isfile(mel)
+        
+     count = 0
+     for i in l:
+        if mel.startswith(i) == True:
+             count += 1
+            
+     if count >= 1:
+         fel = os.path.dirname(file_path)
+         tel = f"{work_abs}/{fel}"
+         if os.path.exists(tel) == False:
+            return f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory'
+         return f'Error: File "{file_path}" not found.'
+    
+     if os.path.isfile(mel) == False:
+         return f'Error: File "{file_path}" not found.'
+     
+     if file_path.endswith('.py') == False:
+         return  f'Error: "{file_path}" is not a Python file.'
+     
+     if file_path.startswith('.') == True:
+         return f'Error: expected stdout to contain Cannot execute "{file_path}" as it is outside'
+     
+     try:
+        results = subprocess.run([sys.executable, f"{mel}", *args], cwd=work_abs,  text=True, timeout=30, capture_output=True, check=False)
+        stdout_output = results.stdout
+        stderr_output = results.stderr
+        if stderr_output == "" and stdout_output == "":
+            return "No output produced"
+        if results.returncode != 0:
+            return f"Process exited with code {file_path}"
+        final = f'"STDOUT:", {stdout_output}\n"STDERR:", {stderr_output}'
+        return final
+     
+     except subprocess.CalledProcessError as e:
+        print("Command failed with error:", e)
+        print("Stderr:", e.stderr)

@@ -1,12 +1,18 @@
 # from subdirectory.filename import function_name
-from functions.functinsfile import write_file
+from functions.functinsfile import run_python_file
 
 
-f = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+f = run_python_file("calculator", "main.py")
 print(f)
 
-f = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+f = run_python_file("calculator", "main.py", ["3 + 5"])
 print(f)
 
-f = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+f = run_python_file("calculator", "tests.py")
+print(f)
+
+f = run_python_file("calculator", "../main.py") #should return errorS
+print(f)
+
+f = run_python_file("calculator", "nonexistent.py") #should return error
 print(f)
